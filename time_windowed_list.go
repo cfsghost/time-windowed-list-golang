@@ -6,18 +6,12 @@ import (
   "fmt"
 )
 
-type TimeWindowedList struct {
-  Windows       map[TimeHash]TimeWindow
-  DurationType  time.Duration
-  MaxDurations  int
+type TimeWindowEntry interface {
+  TStamp()      time.Time
 }
 
 type TimeWindow struct {
   Entries       []TimeWindowEntry
-}
-
-type TimeWindowEntry interface {
-  TStamp()      time.Time
 }
 
 type TimeHash int64
@@ -25,6 +19,12 @@ type ByTimeHash []TimeHash
 func (a ByTimeHash) Len() int           { return len(a) }
 func (a ByTimeHash) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByTimeHash) Less(i, j int) bool { return a[i] < a[j] }
+
+type TimeWindowedList struct {
+  Windows       map[TimeHash]TimeWindow
+  DurationType  time.Duration
+  MaxDurations  int
+}
 
 func NewTimeWindowedList(durType time.Duration, maxDur int) TimeWindowedList {
   l := TimeWindowedList{}
