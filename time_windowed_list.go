@@ -66,13 +66,18 @@ func (wl *TimeWindowedList) Add(entry TimeWindowEntry) {
 
 func (wl *TimeWindowedList) All() []TimeWindowEntry {
   wl.ExpireOldEntries()
-  var all []TimeWindowEntry
+  startTime := time.Now().Add(-time.Duration(wl.MaxDurations) * wl.DurationType).Unix()
 
+  var all []TimeWindowEntry
   for windowTime := range wl.Windows {
     window := wl.Windows[windowTime]
 
     for i := range window.Entries {
-      all = append(all, window.Entries[i])
+      entry := window.Entries[i]
+
+      if(entry.TStamp().Unix() > startTime) {
+        all = append(all, entry)
+      }
     }
   }
 
@@ -81,13 +86,24 @@ func (wl *TimeWindowedList) All() []TimeWindowEntry {
 
 func (wl *TimeWindowedList) DisplayContents() {
   wl.ExpireOldEntries()
+  startTime := time.Now().Add(-time.Duration(wl.MaxDurations) * wl.DurationType).Unix()
 
   fmt.Println("----")
   for windowTime := range wl.Windows {
     window := wl.Windows[windowTime]
 
-    fmt.Printf("%d - %d\n", windowTime, len(window.Entries))
+    var allInBucket []TimeWindowEntry
+    for i := range window.Entries {
+      entry := window.Entries[i]
+
+      if(entry.TStamp().Unix() > startTime) {
+        allInBucket = append(allInBucket, entry)
+      }
+    }
+
+    fmt.Printf("%d - %d\n", windowTime, len(allInBucket))
   }
 
+  fmt.Printf("\nTotal in list: %d\n", len(wl.All()))
   fmt.Println("----\n")
 }

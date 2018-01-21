@@ -16,7 +16,7 @@ func(e MyEntry) TStamp() time.Time {
 func main() {
   windowedList := NewTimeWindowedList(time.Second, 5)
 
-  for {
+  for range time.Tick(2 * time.Second) {
     newEntry := MyEntry{HappenedAt: time.Now()}
     windowedList.Add(newEntry)
 
